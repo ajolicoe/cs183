@@ -1,0 +1,78 @@
+{{extend 'layout.html'}}
+<h3>Created by Alex Jolicoeur</h3>
+<hr>
+<h3>Data Layout</h3>
+
+<h5>Categories (CS, CE, EE, BME, etc.)</h5>
+<ul>
+	<li>title (string)</li>
+	<li>create_date (datetime)</li>
+</ul>
+
+<h5>Subjects (CMPS101, CMPE110, etc.)</h5>
+<ul>
+	<li>title (string)</li>
+	<li>create_date (datetime)</li>
+	<li>category (reference categories)</li>
+	<li>num_tutors (integer)</li>
+</ul>
+
+<h5>Students</h5>
+<ul>
+	<li>student (auth.user_id)</li>
+    <li>is_tutor (boolean)</li>
+    <li>name (string)</li>
+    <li>create_date (datetime)</li>
+    <li>description (text)</li>
+    <li>phone_number (string), requires regex match</li>
+    <li>rating (double)</li>
+    <li>num_ratings (integer)</li>
+    <li>hourly_rate (double)</li>
+    <li>does_half_hour (boolean)</li>
+    <li>subjects (list:reference subjects)</li>
+</ul>
+
+<h5>Messages</h5>
+<ul>
+	<li>author (auth.user_id)</li>
+    <li>recipient (auth.user_id)</li>
+    <li>create_date (datetime)</li>
+    <li>body (text)</li>
+    <li>accepted (boolean)</li>
+</ul>
+
+<h5>Ratings</h5>
+<ul>
+	<li>rater (auth.user_id)</li>
+	<li>ratee (auth.user_id)</li>
+	<li>create_date (datetime)</li>
+	<li>rating (double)</li>
+</ul>
+
+<hr>
+<h3>Functionality</h3>
+
+<h5>Find a tutor</h5>
+<p>A user can use the 'find tutor' button to find a tutor of a certain category and subject. They can sort these tutors by Name, or rating. This does not require the user to login.</p>
+<h5>Be a tutor</h5>
+<p>A user can use the 'be a tutor' button to register themselves as a tutor, they are then directed to an 'edit profile' page where they can add more information
+about themselves and add subjects to their profile. This requires the user to be logged in.</p>
+<h5>Request a session with a tutor</h5>
+<p>A user can request a session with a tutor when viewing the tutor's profile. This requires the user to be logged in.</p>
+<h5>Message your tutors</h5>
+<p>Once the tutor accepts a request, the user and the tutor will be able to send messages to each other and view these conversations.</p>
+<h5>Rate your tutors</h5>
+<p>Once the tutor accepts a request, the use will be able to rate the tutor's performance.</p>
+<h5>Respond to messages via email</h5>
+<p>When a user sends a message to the tutor, or the tutor sends a message to the student, the message can be emailed to the respective recipient. The recipient
+of the message will then be able to reply to the message via email, and have it displayed in their conversation with the sender.</p>
+
+<hr>
+<h3>Difficulties I ran into</h3>
+<h5>Responding to messages via email</h5>
+<p>I was unable to find a good solution to passing the sender/recipient id's in the email, so I would know which conversation to add the reply to. I tried creating
+a custom header, but in the end I just hard-coded it into the subject of the email.</p>
+<h5>Design</h5>
+<p>I also tried working on the design of the site, but realized I was spending too much time trying to make it look decent, while some of the functionality still needed work.</p>
+<h5>Local Time</h5>
+<p>I have not figured out how to convert from UTC to user's local time yet.</p>

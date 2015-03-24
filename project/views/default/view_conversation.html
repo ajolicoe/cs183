@@ -1,0 +1,26 @@
+{{extend 'layout.html'}}
+<h4>Write your message!</h4>
+{{=form}}
+{{if convo:}}
+	{{for message in convo:}}
+		{{=H4(A(get_name(message.author), _href=URL('default', 'profile', args=[message.author])))}}
+		{{=H5(message.create_date.strftime("%A, %d %B %Y %I:%M%p"))}}
+		{{=P(message.body)}}
+	{{pass}}
+{{pass}}
+
+{{if emails:}}
+	{{for email in emails:}}
+		{{=email}}
+	{{pass}}
+{{pass}}
+
+<script type="text/JavaScript">
+<!--
+function timedRefresh(timeoutPeriod) {
+	setTimeout("location.reload(true);",timeoutPeriod);
+}
+//   -->
+</script>
+
+<body onload="JavaScript:timedRefresh(60000);">

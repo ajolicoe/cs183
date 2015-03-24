@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+{{for row in selects:}}
+	{{=H4('From: ' + get_name(row.author))}}
+	{{=P(row.body)}}
+{{pass}}
+{{if can_accept:}}
+	{{=A('Accept', _class='btn', _href=URL('default', 'accept_request', args=[a0, a1], user_signature=True))}}
+	{{=A('Back', _class='btn', _href=URL('default', 'profile', args=[a1]))}}
+{{else:}}
+	{{=A('Back', _class='btn', _href=URL('default', 'profile', args=[a0]))}}
+{{pass}}

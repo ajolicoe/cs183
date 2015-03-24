@@ -1,0 +1,152 @@
+{{extend 'layout.html'}}
+<button type='button' id='save-profile'>Save Profile</button>
+
+{{if data['description'] is not None:}}
+	{{desc=data['description']}}
+{{else:}}
+	{{desc=""}}
+{{pass}}
+<h4>My description</h4>
+<textarea id='description' cols="40" rows="10" placeholder='Write something about yourself'>{{=desc}}</textarea>
+
+{{if data['phone_number'] is not None:}}
+	{{phone=data['phone_number']}}
+{{else:}}
+	{{phone=""}}
+{{pass}}
+<h4>My phone number</h4>
+<input type='tel' id='phone-number' value='{{=phone}}' placeholder='(123) 456-7890'/>
+<div id='phone-error'></div>
+
+{{if data['hour_rate'] is not None:}}
+	{{rate=data['hour_rate']}}
+{{else:}}
+	{{rate=""}}
+{{pass}}
+<h4>My hourly rate (USD)</h4>
+<input type='text' id='hour-rate' value='{{=rate}}' placeholder='$10.00'/>
+<div id='rate-error'></div>
+
+<h4>Do I offer half hour sessions?</h4>
+<select id='does-half-hour'>
+	{{if data['half_hour'] == 'Yes':}}
+		<option value="Yes" selected="selected">Yes</option>
+   		<option value="No">No</option>
+   	{{else:}}
+   		<option value="Yes">Yes</option>
+   		<option value="No" selected="selected">No</option>
+   	{{pass}}
+</select>
+
+<div id="my-subjects">
+	{{=H4('My subjects:')}}
+	{{if data['my_subjects'] is not None:}}
+		{{=UL(*[LI(get_subject_title(x), _class='my_subjects', _id=x) for x in data['my_subjects']], _id='my-subject-list')}}
+	{{else:}}
+		{{=UL(_id='my-subject-list')}}
+	{{pass}}
+</div>
+
+{{for category in categories:}}
+	<h5 class='category' id='category{{=category.id}}'>{{=category.title}}</h5>
+	{{for subject in subjects:}}
+		{{if subject.category == category.id:}}
+			<div class='subjects category{{=category.id}}' id='subject{{=subject.id}}'>
+				<span id='title{{=subject.id}}' display: inline;'>{{=subject.title}}</span>
+			</div>
+		{{pass}}
+	{{pass}}
+{{pass}}
+
+<script>
+$(document).ready(function() {
+
+	$(".my_subjects").each(function() {
+		var c = $(this);
+		var s_id = c.attr('id');
+		$('#subject'+s_id).remove();
+	});
+
+	function isValidPhoneNumber(p) {
+  		var phoneRe = /^[2-9]\d{2}[2-9]\d{2}\d{4}$/;
+  		var digits = p.replace(/\D/g, "");
+  		return (digits.match(phoneRe) !== null);
+	}
+	
+	$('.category').css('margin-left', '10');
+	$('.subjects').hide();
+	$('.subjects').css('font-size', '90%');
+  	$('.subjects').css('border-style','outset');
+	$('.subjects').css('padding', '5');
+	$('.subjects').css('width', '500');
+	
+	$(".category").click(function() { 
+		$(".subjects").hide();
+    	var c = $(this);
+    	var p = "category";
+    	var p_id = c.attr('id').substring(p.length);
+		$(".category"+p_id).toggle();
+	});
+	
+	$(".subjects").click(function() { 
+    	var c = $(this);
+    	var p = "subject";
+    	var p_id = c.attr('id').substring(p.length);
+    	var value = $("#title"+p_id).text();
+    	
+		$("#my-subject-list").append("<li class='my_subjects' id="+p_id+">"+value+"</li>");
+		$("#subject"+p_id).hide();
+		
+	});
+	
+	$("#save-profile").click(function() {
+
+		var description = $("#description").val();
+		var phone = $("#phone-number").val();
+		var rate = $("#hour-rate").val();
+		var half_hour = $("#does-half-hour").val();
+		
+		if (!isValidPhoneNumber(phone)) {
+			$("#phone-error").html('<h5>Not a valid phone number!</h5>');
+		} else {
+			$("#phone-error").empty();
+		}
+		
+		if (isNaN(rate)) {
+			$("#rate-error").html('<h5>Is not a number!</h5>');
+		} else {
+			$("#rate-error").empty();
+		}
+		
+		if (isValidPhoneNumber(phone) && !(isNaN(rate))) {
+			var subjects = [];
+			phone = phone.replace(/[-\(\)]/g, "")
+			phone = phone.replace(/ /g, "")
+			rate = rate.replace(/\$/g, "")
+			
+			$("#my-subject-list").children().each(function(index) {
+				var s_id = $(this).attr('id');
+				subjects.push(s_id);
+			});
+			
+			$.ajax({
+        		url: '{{=URL('default','update_profile')}}',
+            	data: {
+            		description : description,
+            		phone : phone,
+            		rate : rate,
+            		half_hour : half_hour,
+            		subject_list : JSON.stringify(subjects) 
+            	},
+            	type: 'POST',
+            	success: function(){
+					window.location.href = '{{=URL('default', 'profile', args=[me])}}';
+        		},
+        		error: function(){
+        			alert('server error!' + subjects);
+        		}
+        	});
+        }
+	});
+});
+</script>

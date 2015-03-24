@@ -1,0 +1,135 @@
+{{extend 'layout.html'}}
+{{block head}}
+
+{{=LINK(_href=URL('static', 'css/rateit.css'), _rel="stylesheet", _type="text/css")}}
+{{=SCRIPT(_src=URL('static', 'js/jquery.rateit.min.js'), _type="text/javascript")}}
+
+{{end}}
+
+{{if is_owner and info.is_tutor:}}
+	{{=A('Edit Profile', _class='btn', _href=URL('default', 'edit_profile', args=[info.student], user_signature=True))}}
+{{elif (is_student_of) and (not is_owner):}}
+	{{=A('Send Message', _class='btn', _href=URL('default', 'view_conversation', args=[info.student, me], user_signature=True))}}
+{{elif (((not is_owner) and (info.is_tutor)) and (not is_student_of)):}}
+	{{if not has_requested:}}
+		{{=A('Request Tutoring', _class='btn', _href=URL('default', 'request_tutoring', args=[info.student]))}}
+	{{else:}}
+		{{=A('View Request', _class='btn', _href=URL('default', 'view_request', args=[me, info.student], user_signature=True))}}
+	{{pass}}
+{{pass}}
+
+{{if (((is_student_of) and (not has_rated)) and (info.is_tutor)):}}
+	{{=BR()}}
+	{{=BR()}}	
+	{{if info.num_ratings > 0:}}
+		<div id="rating" class="rateit" data-rater="{{=me}}" data-ratee="{{=info.student}}" data-rateit-value="{{=info.rating}}" data-rateit-ispreset="true" data-rateit-readonly="false"></div>
+		{{if info.num_ratings == 1:}}
+			{{=H4('{0:.2f}'.format(info.rating) + ' / 5 (' + (str(info.num_ratings)) + ' rating)', _class='rating_text')}}
+		{{else:}}
+			{{=H4('{0:.2f}'.format(info.rating) + ' / 5 (' + (str(info.num_ratings)) + ' ratings)', _class='rating_text')}}
+		{{pass}}
+	{{else:}}
+		<div id="rating" class="rateit" data-rater="{{=me}}" data-ratee="{{=info.student}}" data-rateit-value="0" data-rateit-ispreset="true" data-rateit-readonly="false"></div>
+		{{=H4('No ratings yet.')}}
+	{{pass}}
+{{else:}}	
+	{{if info.is_tutor:}}
+		{{=BR()}}
+		{{=BR()}}
+		{{if info.num_ratings > 0:}}
+			<div class="rateit" data-rateit-value="{{=(info.rating)}}" data-rateit-ispreset="true" data-rateit-readonly="true"></div>
+			{{if info.num_ratings == 1:}}
+				{{=H4('{0:.2f}'.format(info.rating) + ' / 5 (' + (str(info.num_ratings)) + ' rating)', _class='rating_text')}}
+			{{else:}}
+				{{=H4('{0:.2f}'.format(info.rating) + ' / 5 (' + (str(info.num_ratings)) + ' ratings)', _class='rating_text')}}
+			{{pass}}
+		{{else:}}
+			<h4>No ratings yet.</h4>
+		{{pass}}
+	{{pass}}
+{{pass}}
+
+<script type ="text/javascript">
+$(document).ready(function() {
+	
+	$('.rating_text').css('display', 'inline');
+	
+	//we bind only to the rateit controls
+    $('.rateit').bind('rated reset', function (e) {
+    	var ri = $(this);
+        var value = ri.rateit('value');
+ 
+        //maybe we want to disable voting?
+        ri.rateit('readonly', true);
+ 
+        $.ajax({
+        	url: '{{=URL('default','rate_tutor')}}',
+            data: { rater: {{=me}}, ratee: {{=info.student}}, value: value },
+            type: 'POST',
+            success: function() {
+            	window.location.href = '{{=URL('default','profile', args=[info.student])}}';
+            }
+        });
+	});
+	
+});
+</script>
+
+{{if info.is_tutor:}}
+	{{=H3(get_name(info.student) + ' (Tutor)')}}
+
+	{{=P(B('Tutoring since ' + info.create_date.strftime("%B %d %Y")))}}
+	{{=P(info.description)}}
+	{{if is_student_of:}}
+		{{phone = info.phone_number}}
+		{{=P('(' + phone[:3] + ') ' + phone[3:6] + '-' + phone[6:])}}
+	{{pass}}
+	{{if info.hourly_rate is not None:}}
+		{{=P('Hourly rate is ${0:.2f}.'.format(info.hourly_rate))}}
+	{{pass}}
+	{{if info.does_half_hour == "Yes":}}
+		{{=P('I also offer half-hour sessions.')}}
+	{{pass}}
+	{{if info.subjects:}}
+		{{=H4("Subjects:")}}
+		{{=UL()}}
+		{{for subject in info.subjects:}}
+			{{=LI(A(subject.title, _href=URL('default', 'subject', vars=dict(id=subject.id))))}}
+		{{pass}}
+	{{else:}}
+		{{=H5('No subjects yet.')}}
+	{{pass}}
+{{else:}}
+	{{=H3(get_name(info.student) + ' (Student)')}}
+	{{if my_tutors:}}
+		{{=H4(get_name(info.student) +'\'s tutors:')}}
+		{{=UL()}}
+		{{for tutor in my_tutors:}}
+			{{=LI(A(get_name(tutor.author), _href=URL('default', 'profile', args=[tutor.author])))}}
+		{{pass}}
+	{{pass}}
+{{pass}}
+
+{{if is_owner:}}
+	{{if pending_requests:}}
+		{{=H4('Pending Tutoring Requests:')}}
+		{{=UL()}}
+		{{for req in pending_requests:}}
+			{{if (info.is_tutor) and (info.student == req.recipient):}}
+				{{=LI(A(get_name(req.author), _class='btn', _href=URL('default', 'view_request', args=[req.author, req.recipient], user_signature=True)))}}
+			{{else:}}
+				{{=LI(A(get_name(req.recipient), _class='btn', _href=URL('default', 'view_request', args=[req.author, req.recipient], user_signature=True)))}}
+			{{pass}}
+		{{pass}}
+	{{pass}}
+	{{if convos_with:}}
+		{{=H4('Conversations:')}}
+		{{=UL()}}
+		{{for convo in convos_with:}}
+			{{if convo.author != me:}}
+				{{=LI(A(get_name(convo.author), _class='btn', _href=URL('default', 'view_conversation', args=[convo.author, convo.recipient], user_signature=True)))}}
+			{{pass}}
+		{{pass}}
+	{{pass}}
+{{pass}} 
+	

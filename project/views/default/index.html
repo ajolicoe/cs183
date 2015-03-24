@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+{{=H4('Find yourself a tutor!')}}
+{{=A('Find a tutor', _class='btn', _href=URL('default', 'find_tutor'))}}
+{{if not is_tutor:}}
+	{{=H4('Become a tutor, and help others!')}}
+	{{=A('Be a tutor', _class='btn', _href=URL('default', 'be_tutor'))}}
+{{pass}}
+{{if me is not None:}}
+	{{=H4('View your profile!')}}
+	{{=A('Profile', _class='btn', _href=URL('default', 'profile', args=[me]))}}
+{{pass}}
+{{=H4('Infomation about data layout and functionality')}}
+{{=A('About', _class='btn', _href=URL('default','about'))}}
