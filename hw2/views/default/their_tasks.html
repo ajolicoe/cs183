@@ -1,0 +1,10 @@
+{{extend 'layout.html'}}
+{{=A('Create Task', _href=URL('default', 'create_task'), _class='btn')}}
+{{=A('My Tasks', _href=URL('default', 'my_tasks'), _class='btn')}}
+{{=BR()}}
+{{=BR()}}
+{{if their_grid is None:}}
+	{{=H3(I('None yet.'))}}
+{{else:}}
+	{{=their_grid}}
+{{pass}}

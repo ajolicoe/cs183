@@ -1,0 +1,22 @@
+{{extend 'layout.html'}}
+{{=A('Create Task', _href=URL('default', 'create_task'), _class='btn')}}
+{{=A('Their Tasks', _href=URL('default', 'their_tasks'), _class='btn')}}
+{{=BR()}}
+{{=BR()}}
+{{if accept_grid is not None:}}
+	{{=H3(I('Tasks not accepted:'))}}
+	{{=accept_grid}}
+	{{=BR()}}
+{{pass}}
+{{if not_done_grid is not None:}}
+	{{=H3(I('Tasks not done:'))}}
+	{{=not_done_grid}}
+	{{=BR()}}
+{{pass}}
+{{if done_grid is not None:}}
+	{{=H3(I('Tasks done:'))}}
+	{{=done_grid}}
+{{pass}}
+{{if (((accept_grid is None) and (done_grid is None)) and (not_done_grid is None)):}}
+	{{=H3(I('None yet.'))}}
+{{pass}}

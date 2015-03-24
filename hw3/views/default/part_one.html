@@ -1,0 +1,70 @@
+{{extend 'layout.html'}}
+<h2>U.S. Presidents since WWII</h2>
+<hr>
+{{if presidents:}}
+<ul>
+	{{for president in presidents:}}
+	<li>
+		<div class='president'>
+			<h4 style='display:inline;'>{{=president.name}}</h4>
+			<h5 style='display:inline;'>({{=president.current_count}})</h5>
+			<img style='float:right; padding-right: 5px; padding-left: 10px;' src='{{=URL('static','images/down-arrow.png')}}' class='dec' id='president{{=president.id}}' height=16 width=16>
+			<img style='float:right;' src='{{=URL('static','images/up-arrow.png')}}' class='inc' id='president{{=president.id}}' height=16 width=16>
+		</div>
+	</li>
+	{{pass}}
+</ul>
+{{pass}}
+{{=BR()}}
+{{=A('Presidents Grid', _class='btn', _href=URL('default','part_one_nice'))}}
+
+<script>
+$(document).ready(function() { 
+	$('.president').css('border-style','outset');
+	$('.president').css('padding', '5');
+	$('.president').css('width', '300');
+	$('.inc').hover(function() {
+		$(this).css('cursor','pointer');
+	});
+	$('.dec').hover(function() {
+		$(this).css('cursor','pointer');
+	});
+	
+	$(".inc").click(function() { 
+	
+    	var c = $(this);
+    	var p = "president"
+    	var p_id = c.attr('id').substring(p.length);
+    	
+		$.ajax({
+        	url: '{{=URL('default','inc_president')}}',
+            data: { id : p_id },
+            type: 'POST',
+            success: function(){
+            	window.location.href = '{{=URL('default','part_one')}}';
+        	},
+        	error: function(){
+        		alert('error!');
+        	}
+        });
+	});
+	$(".dec").click(function() { 
+	
+    	var c = $(this);
+    	var p = "president"
+    	var p_id = c.attr('id').substring(p.length);
+		
+		$.ajax({
+        	url: '{{=URL('default','dec_president')}}',
+            data: { id : p_id },
+            type: 'POST',
+            success: function(){
+            	window.location.href = '{{=URL('default','part_one')}}';
+        	},
+        	error: function(){
+        		alert('error!');
+        	}
+        });
+	});
+});
+</script>

@@ -1,0 +1,76 @@
+{{extend 'layout.html'}}
+<h2>U.S. Presidents since WWII</h2>
+<hr>
+<div><h2 id='response'></h2></div>
+{{if presidents:}}
+<ol id="sortable">
+	{{for president in presidents:}}
+	<li id='{{=president.name}}' class='sortable-item'>
+		<div class='president'><h4 style='display:inline;'>{{=president.name}}</h4></div>
+	</li>
+	{{pass}}
+</ol>
+{{pass}}
+
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+<script>
+$(document).ready(function() { 
+	$('.sortable-item').css('border-style', 'outset');
+	$('.sortable-item').css('padding', '5');
+	$('.sortable-item').css('width', '300');
+	$('.sortable-item').css('text-align', 'center');
+	$('.sortable-item').hover(function() {
+    	$(this).css('cursor','pointer');
+    });
+
+    $("#sortable").sortable({
+		update: function(event, ui) {
+			var order = $(this).sortable('toArray');
+			$.ajax({
+        		url: '{{=URL('default','test_order')}}',
+            	data: { order : JSON.stringify(order) },
+            	type: 'POST',
+            	success: function (data) {
+            		var as = JSON.parse(data);
+                	if (as.result === true) {
+						$("#response").append("You win!");
+ 						$(".sortable-item").css('background-color', '#FDD017');
+ 					}
+             	},
+        	});
+		}
+	});
+    
+    $("#sortable").disableSelection();
+	
+	$(".inc").click(function() { 
+	
+    	var c = $(this);
+    	var p = "president"
+    	var p_id = c.attr('id').substring(p.length);
+    	
+		$.ajax({
+        	url: '{{=URL('default','inc_president')}}',
+            data: { id : p_id },
+            type: 'POST',
+            success: window.location.href = '{{=URL('default','part_two')}}'
+        });
+	});
+	
+	$(".dec").click(function() { 
+	
+    	var c = $(this);
+    	var p = "president"
+    	var p_id = c.attr('id').substring(p.length);
+		
+		$.ajax({
+        	url: '{{=URL('default','dec_president')}}',
+            data: { id : p_id },
+            type: 'POST',
+            success: window.location.href = '{{=URL('default','part_two')}}'
+        });
+	});
+});
+</script>

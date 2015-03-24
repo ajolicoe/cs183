@@ -1,0 +1,18 @@
+{{extend 'layout.html'}}
+{{if files:}}
+	{{=H3('User\'s Files:')}}
+	<ul>
+	{{for file in files:}}
+		<li>
+		{{=A(file['title'], _href=URL('default', 'view', args=[file['random']]))}}
+		[{{=A('edit', _href=URL('default', 'edit', args=[file['random']]))}}]
+		[{{=A('delete', _href=URL('default', 'delete', args=[file['random']]))}}]
+		</li>
+	{{pass}}
+	</ul>
+{{else:}}
+	{{=H3('No files uploaded yet.')}}
+{{pass}}
+{{=HR()}}
+{{=H3('Upload a file:')}}
+{{=form}}

@@ -1,0 +1,8 @@
+{{extend 'layout.html'}}
+[{{=A('back', _href=URL('default', 'index'))}}]
+{{=BR()}}
+{{=BR()}}
+{{if is_owner:}}
+	{{=IMG(_src=URL('download', args=file_url))}}
+	{{=form}}
+{{pass}}
